@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobi Tes SKD</title>
+    <link rel="stylesheet" href="css/style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container lobby-container">
+        <h1 id="welcome-message">Selamat Datang Para Perkasa!</h1>
+        <p>Anda siap untuk memulai Try Out SKD? Silakan baca panduan di bawah ini.</p>
+        <div class="lobby-section">
+            <h2>Panduan Pengerjaan Tes</h2>
+            <ul>
+                <li>Total waktu pengerjaan adalah <strong>100 menit</strong> untuk semua soal.</li>
+                <li>Tes terdiri dari 3 bagian: TWK, TIU, dan TKP.</li>
+                <li>Pastikan koneksi internet stabil saat memulai tes.</li>
+                <li>Jawaban Anda akan tersimpan otomatis. Jika terjadi masalah, Anda bisa me-refresh halaman.</li>
+                <li>Klik tombol <strong>"Mulai Tes"</strong> di bawah jika Anda sudah siap.</li>
+            </ul>
+        </div>
+        <div class="lobby-section" id="history-section">
+            <h2>Riwayat Skor Anda</h2>
+            <table id="history-table">
+                <thead>
+                    <tr><th>Tanggal</th><th>TWK</th><th>TIU</th><th>TKP</th><th>Total</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <p id="no-history" style="display: none;">Anda belum memiliki riwayat pengerjaan tes.</p>
+        </div>
+        <div class="action-buttons">
+            <a href="test.html" class="button start-button">Mulai Tes</a>
+            <a href="#" id="logout-btn" class="button">Logout</a>
+        </div>
+    </div>
+    <script src="js/lobby.js"></script>
+</body>
+</html>

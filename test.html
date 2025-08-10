@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes SKD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+    <div id="countdown-overlay">
+        <div id="countdown-text">3</div>
+    </div>
+
+    <!-- Kontainer tes utama, awalnya disembunyikan -->
+    <div class="container test-container" style="display: none;">
+        <!-- Tata Letak Baru dengan Sidebar -->
+        <div class="test-layout">
+            <!-- Sidebar Navigasi Soal -->
+            <aside class="question-sidebar">
+                <h3>Navigasi Soal</h3>
+                <div id="question-nav-pills"></div>
+            </aside>
+
+            <!-- Konten Utama Tes -->
+            <main class="main-content">
+                <div class="header">
+                    <h1 id="test-type">Memuat Soal...</h1>
+                    <div id="timer">--:--</div>
+                </div>
+                <div id="question-area">
+                    <div id="question-image-area"></div> 
+                    <p id="question-text"></p>
+                    <div id="options-area"></div>
+                </div>
+                <div class="navigation-buttons">
+                    <button id="prev-btn">Sebelumnya</button>
+                    <button id="next-btn">Selanjutnya</button>
+                </div>
+                <button id="finish-btn">Selesaikan Tes</button>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="js/test.js"></script>
+</body>
+</html>

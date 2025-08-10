@@ -1,0 +1,140 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+/* Reset dan Pengaturan Dasar */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f4f7f9; color: #333;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; margin: 0; padding: 1rem;
+}
+
+/* Kontainer Utama yang Responsif */
+.container {
+    background-color: #fff; padding: 2rem; border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    width: 100%; max-width: 1200px;
+    text-align: center;
+}
+
+/* Tipografi */
+h1 { color: #2c3e50; margin-bottom: 1.5rem; font-weight: 700; }
+h2 { color: #34495e; font-weight: 500; }
+h3 { margin-top: 0; color: #2c3e50; }
+
+/* Form dan Tombol Umum */
+input[type="text"], input[type="password"] {
+    width: 100%; padding: 14px 16px; margin-bottom: 1rem;
+    border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+}
+button, .button {
+    background-color: #3498db; color: #fff; border: none;
+    padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 500;
+    cursor: pointer; transition: all 0.3s ease; text-decoration: none;
+    display: inline-block; margin: 5px;
+}
+button:hover, .button:hover { background-color: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+button:disabled { background-color: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Halaman Lobi & Hasil (styling tidak berubah signifikan) */
+.lobby-container, .result-container { max-width: 800px; text-align: left; }
+.lobby-section { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; }
+.action-buttons { margin-top: 2rem; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.start-button { background-color: #2ecc71; } .start-button:hover { background-color: #27ae60; }
+#logout-btn { background-color: #e74c3c; } #logout-btn:hover { background-color: #c0392b; }
+.result-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0; }
+.score-card { background-color: #f4f7f9; padding: 1.5rem; border-radius: 8px; text-align: center; }
+
+/* Halaman Tes - Tata Letak Baru (Sidebar Kanan) */
+.test-layout {
+    display: flex;
+    gap: 2rem;
+    text-align: left;
+}
+.main-content {
+    flex-grow: 1; /* Konten utama mengisi sisa ruang */
+}
+.question-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    border-left: 1px solid #e9ecef;
+    padding-left: 2rem;
+}
+#question-nav-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    max-height: 500px; overflow-y: auto; padding: 5px;
+}
+.nav-pill {
+    width: 40px; height: 40px; border: 2px solid #ddd;
+    border-radius: 8px; display: flex; justify-content: center; align-items: center;
+    cursor: pointer; transition: all 0.2s; font-size: 1rem; font-weight: 500;
+}
+.nav-pill:hover { background-color: #f0f0f0; border-color: #bbb; }
+.nav-pill.answered { background-color: #eaf5fc; border-color: #3498db; color: #2980b9; }
+/* Styling untuk Soal yang di-Flag */
+.nav-pill.flagged {
+    border-color: #f39c12;
+    box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+}
+.nav-pill.current {
+    background-color: #3498db; color: #fff; border-color: #3498db;
+    transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.navigation-buttons {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;
+}
+/* Styling Tombol Flag */
+#flag-btn {
+    background-color: transparent;
+    border: 2px solid #f39c12;
+    color: #f39c12;
+    padding: 10px 20px;
+}
+#flag-btn.active {
+    background-color: #f39c12;
+    color: #fff;
+}
+#finish-btn { width: 100%; margin-top: 1rem; background-color: #2ecc71; }
+#finish-btn:hover { background-color: #27ae60; }
+.option {
+    margin-bottom: 1rem; display: flex; align-items: center;
+    background-color: #f8f9fa; border: 1px solid #e9ecef;
+    padding: 12px; border-radius: 8px; transition: all 0.2s ease;
+}
+.option:hover { border-color: #3498db; background-color: #eaf5fc; }
+.option input[type="radio"] { margin-right: 12px; transform: scale(1.2); }
+.option label { cursor: pointer; flex: 1; }
+
+/* Media Query untuk Tablet dan Mobile (di bawah 992px) */
+@media (max-width: 992px) {
+    .container.test-container { padding: 0; box-shadow: none; background: transparent; }
+    .test-layout {
+        flex-direction: column-reverse; /* Pindah sidebar ke bawah */
+        gap: 0;
+    }
+    .main-content {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+    .question-sidebar {
+        width: 100%;
+        border-left: none;
+        padding-left: 0;
+        background-color: #fff;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+    #question-nav-pills {
+        max-height: none; flex-wrap: nowrap;
+        overflow-x: auto; /* Scroll horizontal */
+        padding-bottom: 10px;
+    }
+    .nav-pill { flex-shrink: 0; }
+}
