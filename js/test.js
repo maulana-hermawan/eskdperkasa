@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. BLOK INISIALISASI DAN KEAMANAN
     // ======================================================================
 
-    // Pengecekan Sesi Pengguna
     const sessionString = localStorage.getItem('session');
     let currentUser = null;
     let currentNamaLengkap = null;
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Elemen DOM
     const countdownOverlay = document.getElementById('countdown-overlay');
     const countdownText = document.getElementById('countdown-text');
     const testContainer = document.querySelector('.test-container');
@@ -38,10 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const testTypeEl = document.getElementById('test-type');
     const timerEl = document.getElementById('timer');
 
-    // State Aplikasi
     const TOTAL_TIME = 100 * 60;
     let bankSoal = [], currentQuestionIndex = 0, userAnswers = {}, timerInterval;
-    let flaggedQuestions = {}; // State untuk soal yang di-flag
+    let flaggedQuestions = {};
 
     // ======================================================================
     // 2. ALUR UTAMA APLIKASI TES
@@ -67,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startTest() {
-        // Hapus hanya data tes sebelumnya, biarkan sesi login tetap ada
         localStorage.removeItem('userAnswers');
         localStorage.removeItem('flaggedQuestions');
         userAnswers = {};
@@ -76,12 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadSoal() {
-        // Muat jawaban & flag yang tersimpan dari sesi sebelumnya (jika ada)
-        const savedAnswers = JSON.parse(localStorage.getItem('userAnswers'));
-        if (savedAnswers) userAnswers = savedAnswers;
-        const savedFlags = JSON.parse(localStorage.getItem('flaggedQuestions'));
-        if (savedFlags) flaggedQuestions = savedFlags;
-
         Papa.parse('bank_soal.csv', {
             download: true, header: true, skipEmptyLines: true,
             complete: (results) => {
@@ -128,32 +118,21 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(`opsi_${userAnswers[index]}`).checked = true;
         }
         if (window.renderMathInElement) { renderMathInElement(testContainer); }
-
-        // Update UI untuk tombol Flag
-        if (flaggedQuestions[index]) {
-            flagBtn.classList.add('active');
-            flagBtn.textContent = 'Hapus Tanda';
-        } else {
-            flagBtn.classList.remove('active');
-            flagBtn.textContent = 'Tandai Ragu-ragu';
-        }
-
+        flagBtn.className = flaggedQuestions[index] ? 'active' : '';
+        flagBtn.textContent = flaggedQuestions[index] ? 'Hapus Tanda' : 'Tandai Ragu-ragu';
         updateNavButtons();
         updateActivePill(index);
-
         document.querySelectorAll('input[name="jawaban"]').forEach(radio => {
             radio.addEventListener('change', () => {
                 userAnswers[index] = radio.value;
                 localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
                 updateNavPillStatus(index, true);
-
-                // Fitur Auto-Advance
                 setTimeout(() => {
                     if (currentQuestionIndex < bankSoal.length - 1) {
                         currentQuestionIndex++;
                         renderQuestion(currentQuestionIndex);
                     }
-                }, 300); // Jeda 300ms sebelum pindah
+                }, 300);
             });
         });
     }
@@ -175,14 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateNavPillStatus(index, isAnswered) {
         const pill = document.querySelector(`.nav-pill[data-index='${index}']`);
-        if (pill && isAnswered) pill.classList.add('answered');
+        if (pill) { isAnswered ? pill.classList.add('answered') : pill.classList.remove('answered'); }
     }
 
     function updateFlagPillStatus(index, isFlagged) {
         const pill = document.querySelector(`.nav-pill[data-index='${index}']`);
-        if (pill) {
-            isFlagged ? pill.classList.add('flagged') : pill.classList.remove('flagged');
-        }
+        if (pill) { isFlagged ? pill.classList.add('flagged') : pill.classList.remove('flagged'); }
     }
     
     function updateActivePill(activeIndex) {
@@ -263,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function sendResultsToAdmin(scores) {
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxzxU2jCz007u_7Uzjm2j9zF3dsMI179oPgxbxRDkt64zwUyoRXoMvUJovn8zqP-q6f/exec_SINI';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxzxU2jCz007u_7Uzjm2j9zF3dsMI179oPgxbxRDkt64zwUyoRXoMvUJovn8zqP-q6f/exec';
         const dataToSend = {
             username: currentUser,
             namaLengkap: currentNamaLengkap,
@@ -301,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         flaggedQuestions[currentQuestionIndex] = !isCurrentlyFlagged;
         localStorage.setItem('flaggedQuestions', JSON.stringify(flaggedQuestions));
         updateFlagPillStatus(currentQuestionIndex, !isCurrentlyFlagged);
-        renderQuestion(currentQuestionIndex); // Re-render untuk update teks tombol
+        renderQuestion(currentQuestionIndex);
     });
     
     finishBtn.addEventListener('click', () => {
