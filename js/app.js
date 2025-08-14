@@ -176,16 +176,174 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. FUNGSI-FUNGSI LOGIKA TES
     // ======================================================================
     
-    function renderQuestion(index){const question=bankSoal[index];testTypeEl.textContent=`Soal ${question.tipe}`;questionTextEl.innerHTML=`${index+1}. ${question.soal}`;document.getElementById('question-image-area').innerHTML='';if(question.gambar){const img=document.createElement('img');img.src=question.gambar;img.className='question-image';document.getElementById('question-image-area').appendChild(img)}optionsAreaEl.innerHTML='';['a','b','c','d','e'].forEach(opt=>{if(question[`opsi_${opt}`]!=null){const optionEl=document.createElement('div');optionEl.className='option';optionEl.innerHTML=`<input type="radio" id="opsi_${opt}" name="jawaban" value="${opt}"><label for="opsi_${opt}">${question[`opsi_${opt}`]}</label>`;optionsAreaEl.appendChild(optionEl)}});if(userAnswers[index]){document.getElementById(`opsi_${userAnswers[index]}`).checked=true}if(window.renderMathInElement){renderMathInElement(testContainer)}flagBtn.className=flaggedQuestions[index]?'active':'';flagBtn.textContent=flaggedQuestions[index]?'Hapus Tanda':'Tandai Ragu-ragu';updateNavButtons();updateActivePill(index);document.querySelectorAll('input[name="jawaban"]').forEach(radio=>{radio.addEventListener('change',()=>{userAnswers[index]=radio.value;localStorage.setItem('userAnswers',JSON.stringify(userAnswers));updateNavPillStatus(index,true);setTimeout(()=>{if(currentQuestionIndex<bankSoal.length-1){currentQuestionIndex++;renderQuestion(currentQuestionIndex)}},300)})})}
-    function renderNavPills(){questionNavPillsEl.innerHTML='';bankSoal.forEach((_,index)=>{const pill=document.createElement('div');pill.className='nav-pill';pill.textContent=index+1;pill.dataset.index=index;pill.addEventListener('click',()=>{currentQuestionIndex=index;renderQuestion(currentQuestionIndex)});if(userAnswers[index]){pill.classList.add('answered')}if(flaggedQuestions[index]){pill.classList.add('flagged')}questionNavPillsEl.appendChild(pill)});updateActivePill(currentQuestionIndex)}
-    function updateNavPillStatus(index,isAnswered){const pill=document.querySelector(`.nav-pill[data-index='${index}']`);if(pill){isAnswered?pill.classList.add('answered'):pill.classList.remove('answered')}}
-    function updateFlagPillStatus(index,isFlagged){const pill=document.querySelector(`.nav-pill[data-index='${index}']`);if(pill){isFlagged?pill.classList.add('flagged'):pill.classList.remove('flagged')}}
-    function updateActivePill(activeIndex){document.querySelectorAll('.nav-pill').forEach(pill=>{pill.classList.remove('current');if(parseInt(pill.dataset.index)===activeIndex){pill.classList.add('current')}})}
-    function updateNavButtons(){prevBtn.disabled=currentQuestionIndex===0;nextBtn.disabled=currentQuestionIndex===bankSoal.length-1}
-    function startTimer(){let testEndTime=localStorage.getItem('testEndTime');if(!testEndTime){testEndTime=Date.now()+TOTAL_TIME*1000;localStorage.setItem('testEndTime',testEndTime)}timerInterval=setInterval(()=>{const now=Date.now();const timeLeft=Math.round((testEndTime-now)/1000);if(timeLeft<=0){clearInterval(timerInterval);timerEl.textContent="00:00";alert("Waktu habis!");finishTest();return}const minutes=Math.floor(timeLeft/60);let seconds=timeLeft%60;seconds=seconds<10?'0'+seconds:seconds;timerEl.textContent=`${minutes}:${seconds}`},1000)}
-    function finishTest(){clearInterval(timerInterval);const scores=calculateScores();if(scores){sendResultsToAdmin(scores)}localStorage.removeItem('userAnswers');localStorage.removeItem('flaggedQuestions');localStorage.removeItem('testEndTime');setupHasilView()}
-    function calculateScores(){try{let scores={twk:0,tiu:0,tkp:0,total:0};bankSoal.forEach((soal,index)=>{if(!soal||!soal.tipe)return;const userAnswer=userAnswers[index];if(userAnswer){const tipe=soal.tipe.toUpperCase();let poin=0;if(tipe==='TWK'||tipe==='TIU'){poin=(userAnswer.toUpperCase()===soal.kunci_jawaban.toUpperCase())?5:0}else if(tipe==='TKP'){poin=parseInt(soal[`poin_${userAnswer}`])||0}if(tipe==='TWK')scores.twk+=poin;else if(tipe==='TIU')scores.tiu+=poin;else if(tipe==='TKP')scores.tkp+=poin}});scores.total=scores.twk+scores.tiu+scores.tkp;localStorage.setItem('latestResult',JSON.stringify(scores));const scoreHistory=JSON.parse(localStorage.getItem('scoreHistory'))||{};if(!scoreHistory[currentUser])scoreHistory[currentUser]=[];const now=new Date();const newRecord={...scores,date:now.toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),rawDate:now.toISOString()};scoreHistory[currentUser].push(newRecord);localStorage.setItem('scoreHistory',JSON.stringify(scoreHistory));return scores}catch(error){console.error("Error saat menghitung skor:",error);alert("Terjadi kesalahan saat memproses hasil Anda.");return null}}
-    function sendResultsToAdmin(scores){const WEB_APP_URL='https://script.google.com/macros/s/AKfycbxzxU2jCz007u_7Uzjm2j9zF3dsMI179oPgxbxRDkt64zwUyoRXoMvUJovn8zqP-q6f/exec';const dataToSend={username:currentUser,namaLengkap:currentNamaLengkap,...scores};fetch(WEB_APP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(dataToSend)}).then(()=>console.log("Hasil berhasil dikirim ke admin.")).catch(error=>console.error('Gagal mengirim hasil ke admin:',error))}
+    function renderQuestion(index){
+        const question = bankSoal[index];
+        testTypeEl.textContent = `Soal ${question.tipe}`;
+        // === Hapus nomor soal: tidak lagi `${index+1}. `
+        questionTextEl.innerHTML = `${question.soal}`;
+        document.getElementById('question-image-area').innerHTML = '';
+        if (question.gambar) {
+            const img = document.createElement('img');
+            img.src = question.gambar;
+            img.className = 'question-image';
+            document.getElementById('question-image-area').appendChild(img)
+        }
+        optionsAreaEl.innerHTML = '';
+        ['a','b','c','d','e'].forEach(opt => {
+            if (question[`opsi_${opt}`] != null) {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.innerHTML = `<input type="radio" id="opsi_${opt}" name="jawaban" value="${opt}"><label for="opsi_${opt}">${question[`opsi_${opt}`]}</label>`;
+                optionsAreaEl.appendChild(optionEl)
+            }
+        });
+        if (userAnswers[index]) { document.getElementById(`opsi_${userAnswers[index]}`).checked = true }
+        if (window.renderMathInElement) { renderMathInElement(testContainer) }
+        flagBtn.className = flaggedQuestions[index] ? 'active' : '';
+        flagBtn.textContent = flaggedQuestions[index] ? 'Hapus Tanda' : 'Tandai Ragu-ragu';
+        updateNavButtons();
+        updateActivePill(index);
+        document.querySelectorAll('input[name="jawaban"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                userAnswers[index] = radio.value;
+                localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+                updateNavPillStatus(index, true);
+                setTimeout(() => {
+                    if (currentQuestionIndex < bankSoal.length - 1) {
+                        currentQuestionIndex++;
+                        renderQuestion(currentQuestionIndex)
+                    }
+                }, 300)
+            })
+        })
+    }
+
+    function renderNavPills(){
+        questionNavPillsEl.innerHTML = '';
+        bankSoal.forEach((_, index) => {
+            const pill = document.createElement('div');
+            pill.className = 'nav-pill';
+            pill.textContent = index + 1;
+            pill.dataset.index = index;
+            pill.addEventListener('click', () => { currentQuestionIndex = index; renderQuestion(currentQuestionIndex) });
+            if (userAnswers[index]) { pill.classList.add('answered') }
+            if (flaggedQuestions[index]) { pill.classList.add('flagged') }
+            questionNavPillsEl.appendChild(pill)
+        });
+        updateActivePill(currentQuestionIndex)
+    }
+
+    function updateNavPillStatus(index, isAnswered){
+        const pill = document.querySelector(`.nav-pill[data-index='${index}']`);
+        if (pill) { isAnswered ? pill.classList.add('answered') : pill.classList.remove('answered') }
+    }
+
+    function updateFlagPillStatus(index, isFlagged){
+        const pill = document.querySelector(`.nav-pill[data-index='${index}']`);
+        if (pill) { isFlagged ? pill.classList.add('flagged') : pill.classList.remove('flagged') }
+    }
+
+    function updateActivePill(activeIndex){
+        document.querySelectorAll('.nav-pill').forEach(pill => {
+            pill.classList.remove('current');
+            if (parseInt(pill.dataset.index) === activeIndex) { pill.classList.add('current') }
+        })
+    }
+
+    function updateNavButtons(){
+        prevBtn.disabled = currentQuestionIndex === 0;
+        nextBtn.disabled = currentQuestionIndex === bankSoal.length - 1
+    }
+
+    function startTimer(){
+        let testEndTime = localStorage.getItem('testEndTime');
+        if (!testEndTime) {
+            testEndTime = Date.now() + TOTAL_TIME * 1000;
+            localStorage.setItem('testEndTime', testEndTime)
+        }
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const timeLeft = Math.round((testEndTime - now) / 1000);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerEl.textContent = "00:00";
+                alert("Waktu habis!");
+                finishTest();
+                return
+            }
+            const minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            timerEl.textContent = `${minutes}:${seconds}`
+        }, 1000)
+    }
+
+    function finishTest(){
+        clearInterval(timerInterval);
+        const scores = calculateScores();  // versi all-poin
+        if (scores) { sendResultsToAdmin(scores) }
+        localStorage.removeItem('userAnswers');
+        localStorage.removeItem('flaggedQuestions');
+        localStorage.removeItem('testEndTime');
+        setupHasilView()
+    }
+
+    // ======== HELPER: ambil poin dari opsi yang dipilih ========
+    function getPoint(soal, answer) {
+        const key = `poin_${(answer || "").toLowerCase()}`;
+        const val = parseInt(soal[key], 10);
+        return isNaN(val) ? 0 : val;
+    }
+
+    // ======== Skoring berbasis poin untuk semua tipe ========
+    function calculateScores(){
+        try {
+            let scores = { twk: 0, tiu: 0, tkp: 0, total: 0 };
+            bankSoal.forEach((soal, index) => {
+                if (!soal || !soal.tipe) return;
+                const userAnswer = userAnswers[index]; // 'a' | 'b' | 'c' | 'd' | 'e'
+                if (!userAnswer) return;               // tidak menjawab = 0
+
+                const tipe = (soal.tipe || "").toUpperCase();
+                const poin = getPoint(soal, userAnswer); // ambil dari poin_*
+
+                if (tipe === 'TWK') scores.twk += poin;
+                else if (tipe === 'TIU') scores.tiu += poin;
+                else if (tipe === 'TKP') scores.tkp += poin;
+            });
+            scores.total = scores.twk + scores.tiu + scores.tkp;
+
+            // simpan ke localStorage & riwayat
+            localStorage.setItem('latestResult', JSON.stringify(scores));
+            const scoreHistory = JSON.parse(localStorage.getItem('scoreHistory')) || {};
+            if (!scoreHistory[currentUser]) scoreHistory[currentUser] = [];
+            const now = new Date();
+            const newRecord = {
+                ...scores,
+                date: now.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                rawDate: now.toISOString()
+            };
+            scoreHistory[currentUser].push(newRecord);
+            localStorage.setItem('scoreHistory', JSON.stringify(scoreHistory));
+            return scores;
+        } catch (error) {
+            console.error("Error saat menghitung skor (all-poin):", error);
+            alert("Terjadi kesalahan saat memproses hasil Anda.");
+            return null;
+        }
+    }
+
+    function sendResultsToAdmin(scores){
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxzxU2jCz007u_7Uzjm2j9zF3dsMI179oPgxbxRDkt64zwUyoRXoMvUJovn8zqP-q6f/exec';
+        const dataToSend = { username: currentUser, namaLengkap: currentNamaLengkap, ...scores };
+        fetch(WEB_APP_URL, {
+            method:'POST', mode:'no-cors',
+            headers:{ 'Content-Type':'application/json' },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(() => console.log("Hasil berhasil dikirim ke admin."))
+        .catch(error => console.error('Gagal mengirim hasil ke admin:', error))
+    }
     
     // ======================================================================
     // 6. EVENT LISTENERS
@@ -204,11 +362,42 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutBtnLobby.addEventListener('click', logout);
     prevBtn.addEventListener('click', () => { if (currentQuestionIndex > 0) renderQuestion(--currentQuestionIndex); });
     nextBtn.addEventListener('click', () => { if (currentQuestionIndex < bankSoal.length - 1) renderQuestion(++currentQuestionIndex); });
-    flagBtn.addEventListener('click', () => { const isFlagged = !flaggedQuestions[currentQuestionIndex]; flaggedQuestions[currentQuestionIndex] = isFlagged; if (!isFlagged) delete flaggedQuestions[currentQuestionIndex]; localStorage.setItem('flaggedQuestions', JSON.stringify(flaggedQuestions)); updateFlagPillStatus(currentQuestionIndex, isFlagged); renderQuestion(currentQuestionIndex); });
-    finishBtn.addEventListener('click', () => { const answeredCount = Object.keys(userAnswers).length; const unansweredCount = bankSoal.length - answeredCount; let confirmation = false; if (unansweredCount > 0) { confirmation = confirm(`Anda belum menjawab ${unansweredCount} soal. Apakah Anda yakin ingin menyelesaikan tes?`); } else { confirmation = confirm("Apakah Anda yakin ingin menyelesaikan tes?"); } if (confirmation) { finishTest(); } });
+    flagBtn.addEventListener('click', () => {
+        const isFlagged = !flaggedQuestions[currentQuestionIndex];
+        flaggedQuestions[currentQuestionIndex] = isFlagged;
+        if (!isFlagged) delete flaggedQuestions[currentQuestionIndex];
+        localStorage.setItem('flaggedQuestions', JSON.stringify(flaggedQuestions));
+        updateFlagPillStatus(currentQuestionIndex, isFlagged);
+        renderQuestion(currentQuestionIndex);
+    });
+    finishBtn.addEventListener('click', () => {
+        const answeredCount = Object.keys(userAnswers).length;
+        const unansweredCount = bankSoal.length - answeredCount;
+        let confirmation = false;
+        if (unansweredCount > 0) {
+            confirmation = confirm(`Anda belum menjawab ${unansweredCount} soal. Apakah Anda yakin ingin menyelesaikan tes?`);
+        } else {
+            confirmation = confirm("Apakah Anda yakin ingin menyelesaikan tes?");
+        }
+        if (confirmation) { finishTest(); }
+    });
     lobbyBtnHasil.addEventListener('click', setupLobbyView);
     logoutBtnHasil.addEventListener('click', logout);
-    downloadBtn.addEventListener('click', () => {const results=JSON.parse(localStorage.getItem('latestResult'));const timestamp=new Date().toLocaleString('id-ID',{dateStyle:'full',timeStyle:'short'});let content=`HASIL TES SKD\n=====================================\n`;content+=`Username: ${currentUser}\nNama Lengkap: ${currentNamaLengkap}\nTanggal Tes: ${timestamp}\n\n`;content+=`SKOR:\n- TWK: ${results.twk}\n- TIU: ${results.tiu}\n- TKP: ${results.tkp}\n\n`;content+=`TOTAL SKOR: ${results.total}\n=====================================`;const blob=new Blob([content],{type:'text/plain;charset=utf-8'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`hasil-tes-skd-${currentUser}.txt`;document.body.appendChild(link);link.click();document.body.removeChild(link)});
+    downloadBtn.addEventListener('click', () => {
+        const results = JSON.parse(localStorage.getItem('latestResult'));
+        const timestamp = new Date().toLocaleString('id-ID', { dateStyle:'full', timeStyle:'short' });
+        let content = `HASIL TES SKD\n=====================================\n`;
+        content += `Username: ${currentUser}\nNama Lengkap: ${currentNamaLengkap}\nTanggal Tes: ${timestamp}\n\n`;
+        content += `SKOR:\n- TWK: ${results.twk}\n- TIU: ${results.tiu}\n- TKP: ${results.tkp}\n\n`;
+        content += `TOTAL SKOR: ${results.total}\n=====================================`;
+        const blob = new Blob([content], { type:'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `hasil-tes-skd-${currentUser}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link)
+    });
 
     function logout() {
         if (confirm("Apakah Anda yakin ingin logout? Progres tes yang sedang berjalan akan dihapus.")) {
