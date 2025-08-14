@@ -3,23 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Tryout Perkasa</title>
+    <title>Aplikasi Tes SKD</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div id="login-form">
-            <h1>Selamat Datang di Try Out SKD Perkasa</h1>
-            <p>Silakan login untuk memulai tes.</p>
+    <!-- Countdown Overlay (digunakan oleh Tampilan Tes) -->
+    <div id="countdown-overlay" style="display: none;">
+        <div id="countdown-text">3</div>
+    </div>
+
+    <!-- Tampilan Login -->
+    <div id="login-view" class="app-view">
+        <div class="container">
+            <h1>Selamat Datang di Tes SKD</h1>
+            <p>Silakan login untuk memulai.</p>
             <input type="text" id="login-username" placeholder="Username" required>
             <input type="password" id="login-password" placeholder="Password" required>
             <button id="login-btn">Login</button>
         </div>
     </div>
-    
-    <!-- Script untuk Halaman Login -->
+
+    <!-- Tampilan Lobi -->
+    <div id="lobby-view" class="app-view" style="display: none;">
+        <div class="container lobby-container">
+            <h1 id="welcome-message">Selamat Datang!</h1>
+            <p>Anda siap untuk memulai tes SKD? Silakan baca panduan di bawah ini.</p>
+            <div class="lobby-section">
+                <h2>Panduan Pengerjaan Tes</h2>
+                <ul>
+                    <li>Total waktu pengerjaan adalah <strong>100 menit</strong>.</li>
+                    <li>Jawaban dan sisa waktu Anda akan tersimpan otomatis jika Anda me-refresh halaman.</li>
+                    <li>Klik <strong>"Mulai Tes Baru"</strong> untuk menghapus progres tes lama dan memulai dari awal.</li>
+                </ul>
+            </div>
+            <div class="lobby-section" id="history-section">
+                <h2>Riwayat Skor Anda</h2>
+                <table id="history-table">
+                    <thead><tr><th>Tanggal</th><th>TWK</th><th>TIU</th><th>TKP</th><th>Total</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <p id="no-history" style="display: none;">Anda belum memiliki riwayat pengerjaan tes.</p>
+            </div>
+            <div class="action-buttons">
+                <button id="start-new-test-btn" class="button start-button">Mulai Tes Baru</button>
+                <button id="logout-btn-lobby" class="button">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tampilan Tes -->
+    <div id="test-view" class="app-view" style="display: none;">
+        <div class="container test-container">
+            <div class="test-layout">
+                <main class="main-content">
+                    <div class="header"><h1 id="test-type">...</h1><div id="timer">--:--</div></div>
+                    <div id="question-area">
+                        <div id="question-image-area"></div> 
+                        <p id="question-text"></p>
+                        <div id="options-area"></div>
+                    </div>
+                    <div class="navigation-buttons">
+                        <button id="prev-btn">Sebelumnya</button>
+                        <button id="flag-btn">Tandai Ragu-ragu</button>
+                        <button id="next-btn">Selanjutnya</button>
+                    </div>
+                    <button id="finish-btn">Selesaikan Tes</button>
+                </main>
+                <aside class="question-sidebar">
+                    <h3>Navigasi Soal</h3>
+                    <div id="question-nav-pills"></div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tampilan Hasil -->
+    <div id="hasil-view" class="app-view" style="display: none;">
+        <div class="container result-container">
+            <h1>Hasil Tes SKD</h1>
+            <h2 id="user-name-hasil"></h2>
+            <div class="result-summary">
+                <div class="score-card"><h3>TWK</h3><p id="twk-score">0</p></div>
+                <div class="score-card"><h3>TIU</h3><p id="tiu-score">0</p></div>
+                <div class="score-card"><h3>TKP</h3><p id="tkp-score">0</p></div>
+                <div class="score-card total"><h3>Total Skor</h3><p id="total-score">0</p></div>
+            </div>
+            <div class="action-buttons">
+                <button id="lobby-btn-hasil" class="button">Kembali ke Lobi</button>
+                <button id="download-btn" class="button">Unduh Hasil</button>
+                <button id="logout-btn-hasil" class="button">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skrip Eksternal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="js/database.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
