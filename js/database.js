@@ -14,5 +14,10 @@ const USER_DATABASE = [
         username: "Candra03",
         password: "password3",
         namaLengkap: "Candra Wijaya"
+    },
+    {
+        username: "alan123",
+        password: "alan123",
+        namaLengkap: "Alan Priyatampan"
     }
 ];
